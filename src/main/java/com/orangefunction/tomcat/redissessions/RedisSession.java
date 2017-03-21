@@ -50,30 +50,12 @@ public class RedisSession extends StandardSession {
 
   @Override
   public void setAttribute(String key, Object value) {
-    if (manualDirtyTrackingSupportEnabled && manualDirtyTrackingAttributeKey.equals(key)) {
-      dirty = true;
-      return;
-    }
-
-    Object oldValue = getAttribute(key);
-    super.setAttribute(key, value);
-
-    if ( (value != null || oldValue != null)
-         && ( value == null && oldValue != null
-              || oldValue == null && value != null
-              || !value.getClass().isInstance(oldValue)
-              || !value.equals(oldValue) ) ) {
-      if (this.manager instanceof RedisSessionManager
-          && ((RedisSessionManager)this.manager).getSaveOnChange()) {
-        try {
-          ((RedisSessionManager)this.manager).save(this, true);
-        } catch (IOException ex) {
-          log.error("Error saving session on setAttribute (triggered by saveOnChange=true): " + ex.getMessage());
-        }
-      } else {
-        changedAttributes.put(key, value);
+      if (manualDirtyTrackingSupportEnabled && manualDirtyTrackingAttributeKey.equals(key)) {
+          dirty = true;
+          return;
       }
-    }
+      changedAttributes.put(key, value);
+      super.setAttribute(key, value);
   }
 
   @Override
